@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Data App{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+        </h2>
+        <a href="/records" class="btn btn-gradient">
+            <i class="bi bi-list-ul me-2"></i>View All Records
+        </a>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="stats-icon icon-purple">
+                    <i class="bi bi-file-earmark-text text-white"></i>
+                </div>
+                <h3 id="totalRecords" class="mb-1">
+                    <span class="spinner-border spinner-border-sm"></span>
+                </h3>
+                <p class="text-muted mb-0">Total Records</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="stats-icon icon-blue">
+                    <i class="bi bi-cash-stack text-white"></i>
+                </div>
+                <h3 id="totalValue" class="mb-1">
+                    <span class="spinner-border spinner-border-sm"></span>
+                </h3>
+                <p class="text-muted mb-0">Total Value</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="stats-icon icon-pink">
+                    <i class="bi bi-tags text-white"></i>
+                </div>
+                <h3 id="totalCategories" class="mb-1">
+                    <span class="spinner-border spinner-border-sm"></span>
+                </h3>
+                <p class="text-muted mb-0">Categories</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="stats-icon icon-green">
+                    <i class="bi bi-calculator text-white"></i>
+                </div>
+                <h3 id="avgValue" class="mb-1">
+                    <span class="spinner-border spinner-border-sm"></span>
+                </h3>
+                <p class="text-muted mb-0">Average Value</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-bar-chart-fill me-2"></i>Value by Category
+                    </h5>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-pie-chart-fill me-2"></i>Distribution
+                    </h5>
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Records Table -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-3">
+                <i class="bi bi-table me-2"></i>Recent Records
+            </h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            <th>Amount</th>
+                            <th>Recorded At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsTable">
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                Loading data...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let barChart, pieChart;
+    
+    // Load data on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadStats();
+        await loadCharts();
+        await loadRecords();
+    });
+    
+    // Load statistics
+    async function loadStats() {
+        try {
+            const response = await fetch('/api/stats');
+            const data = await response.json();
+            
+            document.getElementById('totalRecords').textContent = data.total_records;
+            document.getElementById('totalValue').textContent = '$' + data.total_value.toFixed(2);
+            document.getElementById('totalCategories').textContent = data.categories;
+            document.getElementById('avgValue').textContent = '$' + data.avg_value.toFixed(2);
+        } catch (error) {
+            console.error('Error loading stats:', error);
+            document.getElementById('totalRecords').textContent = '0';
+            document.getElementById('totalValue').textContent = '$0';
+            document.getElementById('totalCategories').textContent = '0';
+            document.getElementById('avgValue').textContent = '$0';
+        }
+    }
+    
+    // Load charts
+    async function loadCharts() {
+        try {
+            const response = await fetch('/api/chart-data');
+            const data = await response.json();
+            
+            if (data.categories.length === 0) {
+                document.getElementById('categoryChart').parentElement.innerHTML = 
+                    '<p class="text-muted text-center py-5">No data available</p>';
+                document.getElementById('pieChart').parentElement.innerHTML = 
+                    '<p class="text-muted text-center py-5">No data available</p>';
+                return;
+            }
+            
+            // Bar Chart
+            const barCtx = document.getElementById('categoryChart').getContext('2d');
+            barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.categories,
+                    datasets: [{
+                        label: 'Total Amount',
+                        data: data.values,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)',
+                            'rgba(237, 100, 166, 0.8)',
+                            'rgba(255, 154, 158, 0.8)',
+                            'rgba(75, 192, 192, 0.8)'
+                        ],
+                        borderRadius: 8,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Pie Chart
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.categories,
+                    datasets: [{
+                        data: data.values,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)',
+                            'rgba(237, 100, 166, 0.8)',
+                            'rgba(255, 154, 158, 0.8)',
+                            'rgba(75, 192, 192, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error loading charts:', error);
+        }
+    }
+    
+    // Load recent records table
+    async function loadRecords() {
+        try {
+            const response = await fetch('/api/records-list');
+            const records = await response.json();
+            
+            const tbody = document.getElementById('recordsTable');
+            
+            if (records.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox me-2"></i>No records found. Add some records to get started.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = records.map(record => `
+                <tr>
+                    <td><span class="badge bg-primary">${record.category}</span></td>
+                    <td>${record.subcategory || '-'}</td>
+                    <td><strong>$${parseFloat(record.amount).toFixed(2)}</strong></td>
+                    <td><small class="text-muted">${new Date(record.recorded_at).toLocaleString()}</small></td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            console.error('Error loading records:', error);
+            const tbody = document.getElementById('recordsTable');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="text-center text-danger">
+                        Error loading records
+                    </td>
+                </tr>
+            `;
+        }
+    }
+</script>
+{% endblock %}

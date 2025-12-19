@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Nav Item Form{% endblock %}
+
+{% block content %}
+<h2>{{ form.title.data or 'New' }} Nav Item</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.title.label(class="form-label") }}
+        {{ form.title(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.endpoint.label(class="form-label") }}
+        {{ form.endpoint(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.position.label(class="form-label") }}
+        {{ form.position(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.roles_allowed.label(class="form-label") }}
+        {{ form.roles_allowed(class="form-control") }}
+    </div>
+    <div class="mb-3 form-check">
+        {{ form.visible(class="form-check-input") }}
+        {{ form.visible.label(class="form-check-label") }}
+    </div>
+    <div class="mb-3">
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+{% endblock %}

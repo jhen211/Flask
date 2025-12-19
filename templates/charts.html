@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Charts{% endblock %}
+
+{% block content %}
+<h1>Daily Totals</h1>
+<div id="timeseries-plot" style="width:100%;height:500px;"></div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+  const fig = JSON.parse('{{ fig_json | safe }}');
+  Plotly.newPlot('timeseries-plot', fig.data, fig.layout || {});
+</script>
+{% endblock %}

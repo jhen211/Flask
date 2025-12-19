@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Navigation Items{% endblock %}
+
+{% block content %}
+<h2>Navigation Items</h2>
+<a href="{{ url_for('admin.new_nav') }}" class="btn btn-success mb-3">New Nav Item</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Endpoint</th>
+            <th>Position</th>
+            <th>Roles Allowed</th>
+            <th>Visible</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for nav in nav_items %}
+        <tr>
+            <td>{{ nav.id }}</td>
+            <td>{{ nav.title }}</td>
+            <td>{{ nav.endpoint }}</td>
+            <td>{{ nav.position }}</td>
+            <td>{{ nav.roles_allowed }}</td>
+            <td>{{ 'Yes' if nav.visible else 'No' }}</td>
+            <td>
+                <a href="{{ url_for('admin.edit_nav', nav_id=nav.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                <form method="POST" action="{{ url_for('admin.delete_nav', nav_id=nav.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this item?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

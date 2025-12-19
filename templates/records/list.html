@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Records{% endblock %}
+
+{% block content %}
+<h2>Records</h2>
+
+<!-- Upload CSV -->
+<form method="POST" action="{{ url_for('records.upload_csv') }}" enctype="multipart/form-data" class="mb-3">
+    <input type="file" name="file" class="form-control mb-2" required>
+    <button type="submit" class="btn btn-secondary">Upload CSV</button>
+</form>
+
+<a href="{{ url_for('records.new_record') }}" class="btn btn-success mb-3">New Record</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Category</th>
+            <th>Subcategory</th>
+            <th>Amount</th>
+            <th>Recorded At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in records %}
+        <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.category }}</td>
+            <td>{{ r.subcategory }}</td>
+            <td>{{ r.amount }}</td>
+            <td>{{ r.recorded_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>
+                <a href="{{ url_for('records.edit_record', rec_id=r.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                <form method="POST" action="{{ url_for('records.delete_record', rec_id=r.id) }}" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this record?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
