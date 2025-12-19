@@ -15,15 +15,22 @@ def load_user(user_id):
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    # If already logged in, redirect to dashboard
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and check_password_hash(user.password_hash, form.password.data):
             login_user(user)
-            flash('Logged in', 'success')
-            next_page = request.args.get('next') or url_for('index')
-            return redirect(next_page)
+            flash('Welcome back!', 'success')
+            
+            # Redirect to dashboard instead of 'next' page
+            return redirect(url_for('dashboard'))
+        
         flash('Invalid credentials', 'danger')
+    
     return render_template('login.html', form=form)
 
 @auth_bp.route('/logout')

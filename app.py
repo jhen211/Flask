@@ -1,4 +1,5 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, redirect, url_for
+from flask_login import current_user, login_required
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, SECRET_KEY
 from models import db, NavItem, Record
 from db_utils import init_db, ensure_passwords_hashed
@@ -27,10 +28,15 @@ app.register_blueprint(records_bp)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # If logged in, redirect to dashboard
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    # If not logged in, redirect to login
+    return redirect(url_for('auth.login'))
 
 # -------------------- Charts Route --------------------
 @app.route('/charts')
+@login_required 
 def charts():
     records = Record.query.order_by(Record.recorded_at).all()
     ts = timeseries(records, 'D')
@@ -48,6 +54,7 @@ def charts():
 
 # -------------------- Dashboard Route --------------------
 @app.route('/dashboard')
+@login_required
 def dashboard():
     return render_template('dashboard.html')
 

@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Data Viz App{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem 0;
+        margin: 0;
+    }
+    
+    .register-container {
+        width: 100%;
+        max-width: 500px;
+        padding: 2rem;
+    }
+    
+    .register-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        animation: slideUp 0.5s ease-out;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .register-header {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        padding: 2.5rem 2rem;
+        text-align: center;
+        color: white;
+    }
+    
+    .register-header i {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+    
+    .register-header h2 {
+        margin: 0;
+        font-size: 1.875rem;
+        font-weight: 700;
+    }
+    
+    .register-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+    
+    .register-body {
+        padding: 2rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 0.7rem 1rem;
+        transition: all 0.3s;
+        font-size: 0.95rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #f093fb;
+        box-shadow: 0 0 0 0.2rem rgba(240, 147, 251, 0.25);
+    }
+    
+    .input-icon {
+        position: relative;
+    }
+    
+    .input-icon i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        font-size: 1.1rem;
+    }
+    
+    .input-icon .form-control,
+    .input-icon .form-select {
+        padding-left: 3rem;
+    }
+    
+    .btn-register {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border: none;
+        color: white;
+        padding: 0.875rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        width: 100%;
+        transition: all 0.3s;
+        margin-top: 1rem;
+    }
+    
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(240, 147, 251, 0.4);
+    }
+    
+    .login-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #666;
+        padding-bottom: 0.5rem;
+    }
+    
+    .login-link a {
+        color: #f5576c;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+    
+    .password-strength {
+        height: 4px;
+        background: #e0e0e0;
+        border-radius: 2px;
+        margin-top: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .password-strength-bar {
+        height: 100%;
+        width: 0;
+        transition: all 0.3s;
+    }
+    
+    .strength-weak { background: #ff4444; width: 33%; }
+    .strength-medium { background: #ffbb33; width: 66%; }
+    .strength-strong { background: #00C851; width: 100%; }
+    
+    /* Hide default container from base.html */
+    .main-content, .container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <i class="bi bi-person-plus-fill"></i>
+            <h2>Create Account</h2>
+            <p>Join our analytics platform today</p>
+        </div>
+        
+        <div class="register-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    <label class="form-label">{{ form.username.label }}</label>
+                    <div class="input-icon">
+                        <i class="bi bi-person-fill"></i>
+                        {{ form.username(class="form-control", placeholder="Choose a username") }}
+                    </div>
+                    {% if form.username.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.username.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">{{ form.email.label }}</label>
+                    <div class="input-icon">
+                        <i class="bi bi-envelope-fill"></i>
+                        {{ form.email(class="form-control", placeholder="your.email@example.com") }}
+                    </div>
+                    {% if form.email.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.email.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">{{ form.password.label }}</label>
+                    <div class="input-icon">
+                        <i class="bi bi-lock-fill"></i>
+                        {{ form.password(class="form-control", placeholder="Create a strong password", id="password") }}
+                    </div>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="strengthBar"></div>
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.password.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">{{ form.role.label }}</label>
+                    <div class="input-icon">
+                        <i class="bi bi-shield-fill"></i>
+                        {{ form.role(class="form-select") }}
+                    </div>
+                    {% if form.role.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.role.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {{ form.submit(class="btn btn-register") }}
+            </form>
+            
+            <div class="login-link">
+                Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Password strength indicator
+    const passwordInput = document.getElementById('password');
+    const strengthBar = document.getElementById('strengthBar');
+    
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 6) strength++;
+            if (password.length >= 10) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+            
+            strengthBar.className = 'password-strength-bar';
+            
+            if (strength <= 2) {
+                strengthBar.classList.add('strength-weak');
+            } else if (strength <= 4) {
+                strengthBar.classList.add('strength-medium');
+            } else {
+                strengthBar.classList.add('strength-strong');
+            }
+        });
+    }
+    
+    // Auto-focus username field
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('input[name="username"]').focus();
+    });
+</script>
+{% endblock %}
